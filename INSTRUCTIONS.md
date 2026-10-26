@@ -1,56 +1,58 @@
-# Инструкция для личного reMarkable
+# Personal reMarkable instructions
 
-Проект: [AlexWortega/remarkabl](https://github.com/AlexWortega/remarkabl). Настроенный планшет — **reMarkable 2 с ПО 3.20.0.92**. Это приложение и расширение штатного интерфейса; образ системной прошивки в репозитории отсутствует.
+Repository: [AlexWortega/remarkabl](https://github.com/AlexWortega/remarkabl). The configured tablet is a **reMarkable 2 running firmware 3.20.0.92**. The project provides an application and extensions to the stock interface. It does not include a replacement system firmware image.
 
-## Как пользоваться
+## Everyday use
 
-### Дневник
+### Diary
 
-1. Подключите планшет к Wi-Fi.
-2. Откройте боковое меню → Apps / AppLoad → **Живой дневник**.
-3. Напишите вопрос пером и сделайте паузу примерно на пять секунд.
-4. Ответ появляется по мере генерации. Кнопки в верхней панели позволяют открыть новую страницу, листать историю и страницы ответа.
+1. Connect the tablet to Wi-Fi.
+2. Open the side menu → Apps / AppLoad → **Живой дневник** (Living Diary, the installed app's Russian label).
+3. Write a question with the pen and pause for about five seconds.
+4. The reply appears as it is generated. The top controls let you start a new page, browse history, and turn answer pages.
 
-Без сети вопрос остаётся в очереди на планшете. Служба синхронизации отправит его после восстановления доступа к серверу, даже если дневник закрыт. Файлы очереди и история находятся в `/home/root/remarkabl/outbox/`.
+Without a network connection, the question stays in the tablet's queue. The sync service sends it when the server becomes reachable, including while the diary is closed. Queue files and history are stored in `/home/root/remarkabl/outbox/`.
 
-### Книги и статьи
+### Books and articles
 
-1. Откройте [@anototherbot](https://t.me/anototherbot) и нажмите Start.
-2. Отправьте PDF, EPUB или прямую ссылку на статью. Бот принимает сообщения только от владельца с ID `241154130`.
-3. Используйте `/status`, чтобы проверить обработку, и `/library`, чтобы посмотреть библиотеку.
-4. Подключите планшет к сети и дождитесь штатной синхронизации. Документы появляются в обычной библиотеке reMarkable.
+1. Open [@anototherbot](https://t.me/anototherbot) and press Start.
+2. Send a PDF, EPUB, or direct article URL. This deployment accepts only the owner's Telegram ID, `241154130`.
+3. Use `/status` to check processing and `/library` to browse the library.
+4. Connect the tablet to the network and wait for normal sync. Documents appear in the standard reMarkable library.
 
-Вложения Telegram больше 20 МБ требуют настроенных `TELEGRAM_API_ID` и `TELEGRAM_API_HASH` в сервисе `diary`. До этого большие документы можно передавать прямой ссылкой. Лимит приложения — 200 МБ на документ. Закрытые статьи присылайте файлом.
+Telegram attachments over 20 MB require `TELEGRAM_API_ID` and `TELEGRAM_API_HASH` in the `diary` service. Until those are configured, send larger documents through direct download links. The application limit is 200 MB per document. Send restricted articles as files.
 
-### Вопрос рядом с PDF
+### Ask a question next to a PDF
 
-1. Откройте PDF в штатном приложении reMarkable.
-2. Напишите на странице, например: `AI: объясни этот абзац`.
-3. Нажмите **LLM** внизу справа. В боковой панели должен появиться ответ по вопросу и видимому тексту страницы.
-4. Закройте панель кнопкой ×, чтобы продолжить писать.
+1. Open a PDF in the standard reMarkable reader.
+2. Write a question on the page, for example: `AI: explain this paragraph`.
+3. Tap **LLM** in the bottom-right corner. The side panel should show an answer based on your question and the visible passage.
+4. Close the panel with × to continue writing.
 
-Текущая страница отправляется в LLM только по нажатию кнопки. Полная книга автоматически в запрос не вкладывается. Панель также подключена к обычным блокнотам.
+Only the current screen is submitted when you press the button. The complete book is not automatically attached to that request. The overlay also attaches to ordinary notebook pages.
 
-**Статус на 13 октября 2026:** установлен исправленный захват экрана, который заменяет аварийный `grabToImage`. Захват отдельно проверен на устройстве: 0,29 с, около 9 МБ памяти. Серверная обработка страницы и потоковая передача ответа проверены. Полный сценарий «нажать LLM в PDF → увидеть ответ в панели» после исправления ещё требует проверки на планшете.
+**Status as of October 13, 2026:** the replacement screen capture is installed and avoids the crashing `grabToImage` call. Capture alone was verified on the tablet at 0.29 seconds and approximately 9 MB memory. Server-side page processing and streaming were also tested. The complete “tap LLM in a PDF → see the answer in the panel” flow still needs on-device confirmation after the fix.
 
-## Где находятся сервисы и настройки
+## Services and configuration
 
-| Что | Адрес или файл |
+These addresses refer to the existing personal deployment. Use your own addresses and credentials when deploying another instance.
+
+| Component | Address or file |
 | --- | --- |
-| Управление сервером | [Railway: remarkabl](https://railway.com/project/045103b6-07cd-4c46-a902-22a087215bd0) |
-| API дневника | https://diary-production-763d.up.railway.app |
-| Личное облако | https://cloud-production-b67a.up.railway.app |
-| Эмулятор в браузере | https://diary-production-763d.up.railway.app/simulator |
-| Настройки планшета | `/home/root/remarkabl/device.env` |
-| Локальные ключи и резервные копии | `.secrets/`, вне Git |
+| Server management | [Railway: remarkabl](https://railway.com/project/045103b6-07cd-4c46-a902-22a087215bd0) |
+| Diary API | https://diary-production-763d.up.railway.app |
+| Personal cloud | https://cloud-production-b67a.up.railway.app |
+| Browser simulator | https://diary-production-763d.up.railway.app/simulator |
+| Tablet configuration | `/home/root/remarkabl/device.env` |
+| Local credentials and backups | `.secrets/`, excluded from Git |
 
-`OPENROUTER_API_KEY` и `TELEGRAM_BOT_TOKEN` хранятся в Variables сервиса `diary` в Railway. На планшете `REMARKABL_TOKEN` должен совпадать с серверным `DEVICE_TOKEN`; `REMARKABL_URL` содержит адрес API дневника. Пауза перед отправкой задаётся `REMARKABL_IDLE_MS`, по умолчанию `5000`.
+`OPENROUTER_API_KEY` and `TELEGRAM_BOT_TOKEN` belong in Railway Variables for `diary`. On the tablet, `REMARKABL_TOKEN` must match the server's `DEVICE_TOKEN`; `REMARKABL_URL` is the diary API URL. `REMARKABL_IDLE_MS` sets the handwriting pause before submission, defaulting to `5000`.
 
-Скачивание репозитория не восстанавливает секреты, заметки, историю или содержимое серверных volumes. Их резервные копии нужно переносить отдельно.
+Cloning the repository does not restore credentials, notes, conversation history, or server volumes. Transfer their backups separately. `.env.example` contains empty credential fields; the configured Telegram user ID is an access-control identifier, not an authentication token.
 
-## Скачать и запустить сервер локально
+## Clone and run the server locally
 
-Нужны Git, Python 3.12+ и `uv`. Для Rust-приложения дополнительно нужны Rust/Cargo и целевая платформа ARMv7.
+Requirements: Git, Python 3.12+, and `uv`. Building the tablet application also requires Rust/Cargo and the ARMv7 target.
 
 ```sh
 git clone https://github.com/AlexWortega/remarkabl.git
@@ -59,7 +61,7 @@ uv sync --python 3.12 --group dev
 cp .env.example .env
 ```
 
-Откройте `.env` в редакторе. Для первого запуска без платных запросов:
+Open `.env` in an editor. To try the server without paid API calls, set:
 
 ```dotenv
 DEVICE_TOKEN=replace-with-your-own-random-token
@@ -67,29 +69,29 @@ MOCK_LLM=true
 EMBEDDING_MODE=lexical
 ```
 
-Случайный токен можно сгенерировать локально:
+Generate your own random token locally:
 
 ```sh
 python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
 ```
 
-Запустите сервер:
+Start the server:
 
 ```sh
 uv run remarkabl --port 8000
 ```
 
-Откройте http://127.0.0.1:8000/simulator и введите свой `DEVICE_TOKEN`. В режиме `MOCK_LLM=true` ответы тестовые. Для реальных ответов задайте `OPENROUTER_API_KEY` и `MOCK_LLM=false`. Для семантического поиска установите `uv sync --extra semantic --group dev` и задайте `EMBEDDING_MODE=semantic`. При первой индексации потребуется скачать модель.
+Open http://127.0.0.1:8000/simulator and enter your `DEVICE_TOKEN`. Replies are synthetic when `MOCK_LLM=true`. For real replies, configure `OPENROUTER_API_KEY` and set `MOCK_LLM=false`. For semantic retrieval, run `uv sync --extra semantic --group dev` and set `EMBEDDING_MODE=semantic`. The first indexing run downloads the model.
 
-Остальные параметры бота и облака приведены в [.env.example](.env.example). Для сканов при локальном запуске нужны Tesseract и языки `rus`, `eng`; серверный Docker-образ уже включает их.
+Other bot and cloud settings are listed in [.env.example](.env.example). Change `TELEGRAM_ALLOWED_USER_ID` to your own Telegram user ID for a separate deployment. Local scan processing requires Tesseract with `rus` and `eng` language data; these are included in the server Docker image.
 
-## Обновить приложение на уже настроенном планшете
+## Update an already configured tablet
 
-Эти команды рассчитаны на существующую установку XOVI/AppLoad и настроенное личное облако. Скрипт обновления проверяет модель и версию ПО; другие версии не поддерживаются автоматически.
+These commands assume XOVI/AppLoad and the personal cloud connection are already configured. The update script checks the model and firmware; it does not automatically support other versions.
 
-1. Сохраните резервную копию и закройте дневник.
-2. Подключите планшет к компьютеру по USB и разблокируйте его.
-3. Обновите исходники и соберите приложение:
+1. Save a backup and close the diary.
+2. Connect the tablet to your computer over USB and unlock it.
+3. Update the source and build the application:
 
 ```sh
 git pull --ff-only
@@ -98,34 +100,34 @@ rustup target add armv7-unknown-linux-musleabihf
 sh scripts/build-tablet.sh
 ```
 
-Сборка находится в `dist/remarkabl/`. При первом подключении с этого компьютера выполните:
+The build is placed in `dist/remarkabl/`. When connecting from this computer for the first time, run:
 
 ```sh
 sh scripts/pair-device.sh
 ```
 
-Пароль root указан на планшете в **Settings → Help → Copyrights and licenses**. Его вводят в локальном терминале; скрипт добавляет отдельный SSH-ключ в `.secrets/ssh/remarkabl`. Если этот ключ уже восстановлен из личной резервной копии, повторное сопряжение не нужно.
+The tablet's root password is shown under **Settings → Help → Copyrights and licenses**. Enter it locally when SSH asks. The script adds a dedicated SSH key stored in `.secrets/ssh/remarkabl`. If you restored that key from your private backup, pairing again is unnecessary.
 
-Установите обновление:
+Install the update:
 
 ```sh
 sh scripts/update-device.sh
 ```
 
-Скрипт заменяет приложение, QML-панель и службы. Он не перезапускает штатный интерфейс. Для применения изменений панели после завершения записи заметок выполните:
+The script replaces the application, QML overlay, and service definitions. To load overlay changes, finish writing any notes and restart the stock interface:
 
 ```sh
 ssh -i .secrets/ssh/remarkabl root@10.11.99.1 \
   'systemctl restart xochitl'
 ```
 
-После перезапуска снова разблокируйте планшет. Для другого USB/IP-адреса передайте его аргументом в `update-device.sh`; при сопряжении используется переменная `REMARKABL_DEVICE_HOST`.
+Unlock the tablet again after the restart. For a different USB/IP address, pass it as an argument to `update-device.sh`. Pairing uses the `REMARKABL_DEVICE_HOST` environment variable.
 
-### Если планшет или компьютер новые
+### A new tablet or computer
 
-Установка с нуля требует отдельной настройки XOVI, AppLoad и rmfakecloud-proxy, привязки планшета к личному облаку и создания `/home/root/remarkabl/device.env`. Автоматического полного установщика в этом репозитории нет. Проверенные версии и SHA256 загрузок находятся в [deploy/upstream-manifest.json](deploy/upstream-manifest.json): XOVI `v19-23052026`, AppLoad `v0.3.1`, proxy `v0.0.11`. Подмена AppLoad на произвольную новую версию может нарушить совместимость с Qt планшета.
+A fresh tablet requires separate installation of XOVI, AppLoad, and rmfakecloud-proxy, pairing with the personal cloud, and creation of `/home/root/remarkabl/device.env`. This repository does not yet provide a complete installer for a fresh tablet. Verified release versions and SHA256 checksums are in [deploy/upstream-manifest.json](deploy/upstream-manifest.json): XOVI `v19-23052026`, AppLoad `v0.3.1`, and proxy `v0.0.11`. Substituting a newer AppLoad build can break compatibility with the tablet's Qt version.
 
-На новом компьютере восстановите свою `.secrets/` отдельно либо заново выполните сопряжение. Сохранившийся `/home/root/remarkabl/device.env` переносить с компьютера не требуется; если он утрачен, создайте файл с правами `600` по следующему шаблону:
+On a new computer, restore your private `.secrets/` directory separately or pair again. An existing `/home/root/remarkabl/device.env` stays on the tablet. If it is missing, create it there with permissions `600`, following this template:
 
 ```dotenv
 REMARKABL_URL=https://your-diary-server.example
@@ -134,9 +136,9 @@ REMARKABL_DATA_DIR=/home/root/remarkabl
 REMARKABL_IDLE_MS=5000
 ```
 
-## Обновить сервер в Railway
+## Update the Railway services
 
-Нужны Railway CLI, доступ к существующему проекту и сохранённые Variables. Из корня репозитория:
+Requirements: Railway CLI, access to the existing project, and the configured Variables. From the repository root:
 
 ```sh
 python3 scripts/deploy-server.py
@@ -144,52 +146,52 @@ railway link --project 045103b6-07cd-4c46-a902-22a087215bd0
 railway up deploy/cloud --path-as-root --service cloud --detach
 ```
 
-Первой командой обновляется дневник, последней — личное облако. Для другого проекта у `deploy-server.py` есть параметры `--project`, `--service`, `--environment`; `railway link` также должен указывать нужный проект.
+The first command deploys the diary; the last deploys the cloud. For another project, `deploy-server.py` accepts `--project`, `--service`, and `--environment`. Point `railway link` at that project as well.
 
-Скрипт дневника создаёт временный каталог только с нужными серверу файлами. Используйте его вместо загрузки всей рабочей папки с `.secrets/` и локальными данными. Команды только отправляют сборку: дождитесь успешного статуса deployment в Railway.
+The diary script creates a temporary directory containing only the required server files. Use it to upload server source without including your working directory's private files. These commands submit builds; wait for a successful deployment status in Railway.
 
-Оба сервиса используют отдельные volumes в `/data`. Настройки `diary` перечислены в `.env.example`. Для `cloud` нужны `CLOUD_USER`, `CLOUD_PASSWORD`, `JWT_SECRET_KEY`; `RMFAKECLOUD_USER` и `RMFAKECLOUD_PASSWORD` в `diary` должны соответствовать владельцу облака. Боту нужна постоянно работающая одна реплика сервера. Описание инфраструктуры находится в [.railway/railway.ts](.railway/railway.ts); применять его к другому проекту без проверки плана не следует.
+Each service has its own volume mounted at `/data`. Diary settings are listed in `.env.example`. The cloud requires `CLOUD_USER`, `CLOUD_PASSWORD`, and `JWT_SECRET_KEY`; the diary's `RMFAKECLOUD_USER` and `RMFAKECLOUD_PASSWORD` must match the cloud owner account. Keep one continuously running replica for the bot and SQLite queue. Infrastructure is defined in [.railway/railway.ts](.railway/railway.ts); inspect its plan before applying it to a different project.
 
-## Если что-то не работает
+## Troubleshooting
 
-| Симптом | Что проверить |
+| Symptom | Check |
 | --- | --- |
-| SSH не подключается | Разблокировать планшет, переподключить USB-кабель, проверить адрес `10.11.99.1`. |
-| Нет Apps / AppLoad | Версию ПО, состояние `remarkabl-xovi`, совместимость расширений. |
-| Вопрос остаётся без ответа | Wi-Fi, состояние `remarkabl-sync`, адрес и токен в `device.env`, `/v1/status` с авторизацией. |
-| Бот не принимает документ | Личный чат с ботом, разрешённый Telegram ID, размер и доступность ссылки. |
-| Книга ещё не появилась | `/status`, `/library`, статус публикации и штатную синхронизацию планшета. |
-| В PDF показана ошибка захвата | Модель и версию ПО; лог `/home/root/remarkabl/pdf-inbox/capture.log`. |
+| SSH does not connect | Unlock the tablet, reconnect the USB cable, and check `10.11.99.1`. |
+| Apps / AppLoad is missing | Firmware version, `remarkabl-xovi` status, and extension compatibility. |
+| A question has no reply | Wi-Fi, `remarkabl-sync`, the URL/token in `device.env`, and authenticated `/v1/status`. |
+| The bot rejects a document | Private chat, allowed Telegram user ID, file size, and URL accessibility. |
+| A book has not appeared | `/status`, `/library`, publication state, and normal tablet sync. |
+| PDF capture reports an error | Device/firmware compatibility and `/home/root/remarkabl/pdf-inbox/capture.log`. |
 
-Просмотр состояния и последних сообщений служб:
+Inspect service state and recent sync messages:
 
 ```sh
 ssh -i .secrets/ssh/remarkabl root@10.11.99.1 \
   'systemctl status remarkabl-sync remarkabl-xovi --no-pager; journalctl -u remarkabl-sync -n 40 --no-pager'
 ```
 
-Чтобы отдельно проверить захват экрана без обращения в LLM:
+Test screen capture locally without submitting anything to an LLM:
 
 ```sh
 ssh -i .secrets/ssh/remarkabl root@10.11.99.1 \
   '/home/root/xovi/exthome/appload/remarkabl/remarkabl-diary --snapshot /tmp/page.png'
 ```
 
-### Вернуть штатный интерфейс
+### Restore the stock interface
 
 ```sh
 sh scripts/restore-stock.sh
 ```
 
-Команда отключает автозапуск расширения и возвращает штатный интерфейс. Заметки и подключение к личному облаку сохраняются. Обычная перезагрузка сама по себе не отключает настроенный автозапуск XOVI.
+This disables automatic extension startup and restores the stock interface. Notes and the personal cloud connection are retained. Rebooting alone does not disable the configured XOVI startup service.
 
-### Резервные копии
+### Backups
 
-До исходной установки была сделана локальная копия `.secrets/device-backup-3.20.0.92.tar.gz` и список `.secrets/backup-file-list.txt`. Это снимок состояния до установки, а не текущая копия новых заметок. На планшете также есть `/home/root/remarkabl/system-before.tar.gz` с прежними настройками.
+Before the original installation, a local backup was saved as `.secrets/device-backup-3.20.0.92.tar.gz`, with its file list in `.secrets/backup-file-list.txt`. That is a pre-installation snapshot, not a current backup of later notes. Earlier system settings are also stored on the tablet in `/home/root/remarkabl/system-before.tar.gz`.
 
-Перед обновлением ПО сохраните актуальные `/home/root/.local/share/remarkable/`, `/home/root/remarkabl/`, SSH-ключ и отдельные backups volumes `diary` и `cloud`. Копирование этих файлов в Git не требуется. При смене версии ПО сначала проверьте совместимость расширений и облачного прокси.
+Before a firmware upgrade, back up the current `/home/root/.local/share/remarkable/` and `/home/root/remarkabl/` directories, your SSH key, and both Railway volumes (`diary` and `cloud`). Keep those backups outside Git. Check extension and cloud-proxy compatibility before changing firmware versions.
 
-## Проверки исходников
+## Source checks
 
 ```sh
 uv run pytest -q
@@ -198,4 +200,4 @@ cargo test --manifest-path tablet/Cargo.toml --locked
 cargo clippy --manifest-path tablet/Cargo.toml --locked -- -D warnings
 ```
 
-Лицензии и исходники сторонних компонентов перечислены в [THIRD_PARTY.md](THIRD_PARTY.md).
+Third-party sources and licenses are listed in [THIRD_PARTY.md](THIRD_PARTY.md).

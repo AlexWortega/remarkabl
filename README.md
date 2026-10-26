@@ -1,84 +1,91 @@
-# Живой дневник для reMarkable
+# Living Diary for reMarkable
 
-Пишите пером, делайте паузу на пять секунд — ответ появляется рукописными штрихами. Дневник сохраняет вопросы без сети, отправляет их через личный сервер и хранит историю. Книги и статьи поступают через личного Telegram-бота и синхронизируются в штатную библиотеку через rmfakecloud.
+Write with the pen, pause for five seconds, and watch the reply appear as handwritten strokes. The diary queues questions offline, sends them through your own server, and keeps a local history. A personal Telegram bot accepts books and articles, which sync to the standard reMarkable library through rmfakecloud.
 
-**[Инструкция: использование, установка, обновление и восстановление](INSTRUCTIONS.md).**
+**[Instructions: usage, setup, updates, and recovery](INSTRUCTIONS.md).**
 
-Подключённое устройство определено как **reMarkable 2, ПО 3.20.0.92, ARMv7**. Пользователь подтвердил установку на него. Сервер не зависит от модели планшета; поддержка других версий интерфейса требует отдельной проверки.
+The tablet integration targets **reMarkable 2, firmware 3.20.0.92, ARMv7**. Other models and firmware versions require compatibility work. The server is independent of the tablet model. This repository contains an application and interface extensions, rather than a replacement firmware image.
 
-## Развёрнутые сервисы
+## Current status
 
-- Railway: https://railway.com/project/045103b6-07cd-4c46-a902-22a087215bd0
-- Дневник: https://diary-production-763d.up.railway.app
-- Личное облако: https://cloud-production-b67a.up.railway.app
-- Telegram-бот: https://t.me/anototherbot
-- Эмулятор: https://diary-production-763d.up.railway.app/simulator
+The native diary has completed a handwritten question and displayed a reply on the tablet. Server-side streaming and PDF page processing have also been tested.
 
-Бот принимает документы только в личном чате от Telegram ID `241154130`. Для начала откройте бота и нажмите Start. Отправляйте PDF, EPUB или ссылку на обычную статью; `/library` показывает материалы и состояние обработки, `/status` — состояние очереди документов. Платные и закрытые статьи нужно присылать файлом.
+The PDF overlay previously crashed the tablet because `grabToImage` requested an unsupported graphics layer. A separate Rust process now reads the existing framebuffer without asking Qt to render the page again. On-device measurements on October 13, 2026: **0.29 seconds, approximately 9 MB peak memory**. The replacement is installed and screen capture is verified; the full PDF button-to-answer interaction still needs confirmation on the tablet after this fix.
 
-Лимит приложения — 200 МБ на документ. Для вложений Telegram больше 20 МБ в Railway → service `diary` → Variables нужны **TELEGRAM_API_ID** и **TELEGRAM_API_HASH**, полученные в https://my.telegram.org → API development tools. После их добавления контейнер автоматически запускает локальный Bot API и переводит бота на него. До настройки большие документы принимаются прямой ссылкой, а обычные вложения — через стандартный Bot API. Локальный Bot API слушает только `127.0.0.1:8081`.
+## Personal deployment
 
-Секреты OpenRouter и Telegram находятся в переменных Railway. Репозиторий их не содержит. На планшете хранится только отдельный токен устройства. Секреты инфраструктуры и резервные копии на компьютере находятся в игнорируемой директории `.secrets/` с ограниченными правами доступа.
+- [Railway project](https://railway.com/project/045103b6-07cd-4c46-a902-22a087215bd0)
+- [Diary API](https://diary-production-763d.up.railway.app)
+- [Personal cloud](https://cloud-production-b67a.up.railway.app)
+- [Telegram bot](https://t.me/anototherbot)
+- [Browser simulator](https://diary-production-763d.up.railway.app/simulator)
 
-## Вопросы на странице PDF
+These are the existing owner's deployment addresses. For your own installation, configure your own credentials, bot, allowed Telegram user ID, and service URLs.
 
-Откройте PDF в штатном ридере, напишите пером `AI: объясни этот абзац` и нажмите **LLM** внизу справа. Рядом открывается панель с ответом, который появляется по мере генерации. Модель читает вопрос и видимый печатный фрагмент страницы. Можно нажать LLM без вопроса, чтобы объяснить видимый фрагмент. Кнопка × закрывает панель. Ответ сохраняется в истории дневника.
+The bot accepts private messages only from the configured Telegram user (`241154130` in this deployment). Send a PDF, EPUB, or article URL. `/library` lists documents and their processing state; `/status` reports the document queue. Send restricted articles as files.
 
-Снимок текущей страницы отправляется только после нажатия LLM. Панель работает также со страницами обычных блокнотов. Для чтения используется штатный интерфейс и его обработка пера; панель загружается через `tablet/pdf-panel.qmd` и `pdf-panel.qml`.
+The application limit is 200 MB per document. Telegram attachments over 20 MB require `TELEGRAM_API_ID` and `TELEGRAM_API_HASH` in the `diary` service's Railway Variables. Obtain them through [Telegram API development tools](https://my.telegram.org). With those values configured, the container starts a local Bot API automatically; it listens only on `127.0.0.1:8081`. Before that setup, use a direct download link for larger documents.
 
-На reMarkable 2 с 3.20.0.92 отдельный короткоживущий Rust-процесс читает уже готовый экран, проверяет формат и упаковывает его в PNG. Захват не использует `grabToImage`: графический движок этой прошивки аварийно завершается при создании такого слоя. Проверка другой модели или прошивки возвращает ошибку в панели. `remarkabl-diary --snapshot /tmp/page.png` сохраняет снимок локально без отправки в модель.
+## Questions on PDF pages
 
-Последняя проверка на устройстве: 13 октября 2026 года. Исправленный захват установлен и проверен: 0,29 с, около 9 МБ пиковой памяти. Нажатие LLM с получением ответа в панели после исправления ещё не подтверждено пользователем.
+Open a PDF in the standard reader, write `AI: explain this paragraph`, and tap **LLM** in the bottom-right corner. The side panel is designed to show a streaming reply based on your handwritten question and the visible printed text. Tap LLM without a question to request an explanation of the visible passage. Close the panel with ×. Replies are saved in the diary history.
 
-В дневнике включён быстрый монохромный режим экрана. Обновления штрихов объединяются, сохранение черновика выполняется отдельным потоком, а очередь просыпается сразу после записи вопроса. Поток OpenRouter передаётся на планшет через SSE; законченные строки дописываются без ожидания полного ответа. Общая задержка до первого текста зависит от распознавания рукописи и модели.
+A screenshot is submitted only when you tap LLM. The overlay also attaches to ordinary notebook pages. Native pen handling remains in the standard application; `tablet/pdf-panel.qmd` loads `tablet/pdf-panel.qml` into the document view.
 
-## Как устроен проект
+Screen capture checks the device, firmware, memory mapping, and pixel format. Unsupported configurations return an error. `remarkabl-diary --snapshot /tmp/page.png` saves a local screenshot without submitting it to a model.
 
-- `remarkabl/`: FastAPI, очередь заданий в SQLite/WAL, бот, OCR, поиск и публикация документов.
-- `tablet/`: Rust-приложение для ARMv7; штрихи, QTFB, кириллица, анимация, страницы истории и дисковая очередь.
-- `scripts/`: сборка, защищённая отправка исходников в Railway и подключение по SSH.
-- `deploy/`: два контейнера, настройки служб и манифест проверенных upstream-загрузок.
-- `.railway/railway.ts`: описание сервисов, проверок готовности и volumes; переменные остаются вне управления IaC.
+The diary uses monochrome refresh, batches pen updates, saves drafts on a separate thread, and wakes the sync queue immediately after a question is saved. OpenRouter output reaches the tablet through SSE; completed lines are drawn before the whole answer finishes. Time to first text also depends on handwriting recognition and the model.
 
-Внешняя модель получает изображение вопроса, до шести предыдущих реплик и найденные фрагменты библиотеки. Полные книги хранятся на вашем сервере. Индекс создаётся локальной моделью `intfloat/multilingual-e5-small`; для сканов используется Tesseract `rus+eng`. PDF-источники привязаны к страницам, EPUB — к главам, статьи — к URL. Обычные блокноты планшета автоматически в LLM не отправляются.
+## Architecture and privacy
 
-Дневник работает через AppLoad поверх штатного интерфейса. Штатная синхронизация продолжает работать. Для ПО 3.20.0.92 используется AppLoad v0.3.1: более новые сборки несовместимы с Qt или QML этой версии. Установлена и включена служба `remarkabl-xovi`, запускающая расширение после загрузки с возвратом к штатному интерфейсу при сбое. Если загрузка не удалась, служба оставляет штатный интерфейс до исправления и повторного запуска `scripts/update-device.sh`. Запуск вручную: `/home/root/xovi/start`. Новые версии ПО планшета требуют проверки расширений и восстановления облачного прокси.
+- `remarkabl/`: FastAPI, SQLite/WAL job queue, Telegram bot, OCR, retrieval, and document publishing.
+- `tablet/`: ARMv7 Rust application with QTFB, handwriting, Cyrillic shaping, animated replies, history, and a persistent queue.
+- `scripts/`: builds, SSH pairing, device updates, and staged Railway uploads.
+- `deploy/`: containers, service configuration, and checksummed upstream downloads.
+- `.railway/railway.ts`: services, health checks, and volumes; secret variables remain outside IaC management.
 
-## Локальный запуск
+The external model receives the question image, up to six preceding conversation turns, and retrieved library excerpts. Complete books stay on your server. Retrieval uses the local `intfloat/multilingual-e5-small` model; scanned documents use Tesseract with `rus+eng`. Citations refer to PDF pages, EPUB chapters, or article URLs. Notebook pages are submitted only through an explicit diary question or LLM button action.
+
+OpenRouter and Telegram credentials belong in Railway Variables. The tablet stores a separate device token. Local credentials and backups are excluded through `.gitignore`; `.env.example` contains empty credential fields. Cloning this repository does not recover the owner's secrets, notes, or server data.
+
+The diary runs through AppLoad alongside the stock interface and cloud sync. Firmware 3.20.0.92 uses AppLoad v0.3.1; newer releases are not interchangeable with the tablet's Qt/QML version. The `remarkabl-xovi` service starts the extension at boot and keeps the stock interface after a failed startup attempt. After fixing the problem, rerun `scripts/update-device.sh`. Manual extension startup: `/home/root/xovi/start`. Firmware upgrades require another compatibility check and may require restoring the cloud proxy.
+
+## Local quick start
 
 ```sh
 uv sync --python 3.12 --group dev
 cp .env.example .env
-# Заполните DEVICE_TOKEN. Для тестов без платных запросов: MOCK_LLM=true.
-# Для поиска без загрузки модели: EMBEDDING_MODE=lexical.
+# Set DEVICE_TOKEN in .env.
+# For test replies without paid API calls: MOCK_LLM=true.
+# For retrieval without downloading a model: EMBEDDING_MODE=lexical.
 uv run remarkabl --port 8000
 ```
 
-Откройте http://127.0.0.1:8000/simulator и введите `DEVICE_TOKEN`. Эмулятор сохраняет вопросы в IndexedDB; API-ключ провайдера в браузер не передаётся. `MOCK_LLM=true` создаёт явные тестовые ответы без обращения к LLM; в Railway этот режим выключен.
+Open http://127.0.0.1:8000/simulator and enter `DEVICE_TOKEN`. The simulator keeps queued questions in IndexedDB; the provider API key is never sent to the browser. `MOCK_LLM=true` generates explicit test replies without calling a model; it is disabled in the personal Railway deployment.
 
-Для семантического поиска:
+For semantic retrieval:
 
 ```sh
 uv sync --extra semantic --group dev
 ```
 
-Шрифт Noto Sans включён для создания PDF со статьями. Bot API 10.3 взят из образа aiogram, закреплённого по SHA256; его musl-библиотеки изолированы от Python/Debian. В Docker установлены языки Tesseract; при локальной работе со сканами установите Tesseract и `rus`, `eng` самостоятельно.
+The bundled Noto Sans font supports article-to-PDF conversion. The Docker image includes Tesseract and its language data. For local scan processing, install Tesseract plus the `rus` and `eng` languages separately. The aiogram Bot API 10.3 image is pinned by digest; its musl runtime is isolated from Python/Debian.
 
 ## API
 
-Все `/v1/*` требуют `Authorization: Bearer <DEVICE_TOKEN>`.
+All `/v1/*` endpoints require `Authorization: Bearer <DEVICE_TOKEN>`.
 
-- `POST /v1/turns`: JSON `{id, conversation_id, image_base64, strokes?, page_capture?}`; `202`, состояние задания. Изображение — PNG до 8 МБ и 4 млн пикселей. Штрихи — массив линий из `[x,y,radius]`.
-- `GET /v1/turns/{id}/events`: SSE с промежуточными и окончательными результатами.
-- `GET /v1/turns/{id}`: `queued`, `processing`, `complete` или `error`; распознанный текст, ответ и проверенные ссылки на источники.
-- `POST /v1/turns/{id}/retry`: повторить завершившийся ошибкой вопрос с тем же ID.
-- `GET /v1/library`: библиотека, состояния индексации и публикации на планшет.
-- `GET /v1/status`: готовность интеграций без значений секретов.
-- `GET /health`: проверка процесса без авторизации.
+- `POST /v1/turns`: JSON `{id, conversation_id, image_base64, strokes?, page_capture?}`; returns `202` and job state. Images must be PNG, at most 8 MB and 4 million pixels. Strokes are arrays of lines containing `[x,y,radius]` points.
+- `GET /v1/turns/{id}/events`: SSE with partial and final results.
+- `GET /v1/turns/{id}`: `queued`, `processing`, `complete`, or `error`, with transcription, answer, and validated citations.
+- `POST /v1/turns/{id}/retry`: retry a failed question using the same ID.
+- `GET /v1/library`: documents, indexing state, and tablet publication state.
+- `GET /v1/status`: integration readiness without exposing secret values.
+- `GET /health`: unauthenticated process health check.
 
-Повтор того же ID и содержимого возвращает прежний результат; другое содержимое с тем же ID получает `409`. OCR сохраняется отдельно от ответа. Перезапуск и временные ошибки сохраняют задания. Ошибки настройки ключей не расходуют число попыток; временные сбои повторяются до шести раз. Для документов загрузка в облако и создание поискового индекса независимы.
+Repeating the same ID and content returns the existing result; different content under that ID returns `409`. OCR is persisted separately from the answer. Jobs survive restarts and temporary failures. Credential configuration errors do not consume retry attempts; temporary failures are retried up to six times. Document upload and search indexing have independent states.
 
-## Сборка планшета
+## Build and update the tablet app
 
 ```sh
 cargo install cargo-zigbuild --locked
@@ -86,39 +93,40 @@ rustup target add armv7-unknown-linux-musleabihf
 sh scripts/build-tablet.sh
 ```
 
-Получается статический ARMv7-бинарник без зависимости от glibc планшета. Пакет находится в `dist/remarkabl/`; шрифты встроены в бинарник. `scripts/update-device.sh` обновляет приложение и включает службы на уже настроенном планшете. `scripts/restore-stock.sh` выключает автозапуск и возвращает штатный интерфейс, сохраняя облачную синхронизацию и заметки. `scripts/pair-device.sh` создаёт отдельный SSH-ключ; пароль устройства вводится в локальном терминале и не сохраняется.
+The output is a static ARMv7 binary in `dist/remarkabl/`, with embedded fonts and no dependency on the tablet's glibc. `scripts/update-device.sh` updates the application and services on an already configured tablet. `scripts/pair-device.sh` creates a dedicated SSH key; enter the device password locally when SSH prompts for it.
 
-`page_capture=true` включает чтение вопроса вместе с печатным фрагментом PDF. Добавленные столбцы SQLite мигрируются автоматически при старте.
+The `page_capture=true` request mode reads a handwritten question together with the visible printed passage. SQLite schema additions migrate automatically at startup.
 
-На устройстве конфигурация лежит в `/home/root/remarkabl/device.env`, данные — в `/home/root/remarkabl/outbox/`. Служба `remarkabl-sync` отправляет очередь и при закрытом дневнике. Если очередь временно обслуживает открытое приложение, служба повторяет запуск через 15 секунд и принимает очередь после его закрытия. Вопрос записывается атомарно до исчезновения рукописи со страницы. История не удаляется при открытии новой страницы.
+Tablet configuration: `/home/root/remarkabl/device.env`. Queue and history: `/home/root/remarkabl/outbox/`. The `remarkabl-sync` service also sends questions while the diary is closed. If the open application owns the queue lock, the service retries after 15 seconds and resumes after the application closes. Questions are saved atomically before the handwriting is cleared; opening a new page preserves history.
 
-Для проверки изображения без планшета:
+Render a sample without a tablet:
 
 ```sh
-cargo run --manifest-path tablet/Cargo.toml -- --render 'Привет. Я ваш живой дневник.' /tmp/diary.png
+cargo run --manifest-path tablet/Cargo.toml -- --render 'Hello. I am your living diary.' /tmp/diary.png
 ```
 
-## Повторное развёртывание
+## Redeploy
 
 ```sh
 python3 scripts/deploy-server.py
 railway up deploy/cloud --path-as-root --service cloud --detach
 ```
 
-Скрипт отправляет только серверные исходники и необходимые шрифты. SSH-ключи, резервные копии, `.env`, Rust-сборки и локальные данные не попадают в загрузку. Оба сервиса используют отдельные Railway Volumes `/data`; не включайте засыпание сервиса бота и не запускайте несколько реплик с одной SQLite-базой. Настройки секретов приведены в `.env.example`.
+The diary deploy script stages only server source and required assets. SSH keys, backups, `.env`, Rust builds, and local data stay out of the upload. Each service uses its own Railway volume mounted at `/data`. Keep the bot service running continuously and use one replica per SQLite database. Configuration fields are listed in `.env.example`; see the instructions for project linking and cloud credentials.
 
-## Проверки и восстановление
+## Checks and recovery
 
 ```sh
 uv run pytest -q
 uv run ruff check remarkabl tests
-cargo test --manifest-path tablet/Cargo.toml
+cargo test --manifest-path tablet/Cargo.toml --locked
+cargo clippy --manifest-path tablet/Cargo.toml --locked -- -D warnings
 ```
 
-Тесты проверяют авторизацию, повторные запросы, перезапуск, восстановление leases, сбои провайдера, PDF/EPUB, поиск, запрет чужих Telegram-пользователей, SSRF и повторы загрузки в облако. Rust-тесты проверяют ARM32-протокол, сохранение штрихов и очередь, стирание и кириллицу с разбиением длинных ответов.
+Python tests cover authentication, idempotency, restarts, lease recovery, provider failures, PDF/EPUB processing, retrieval, Telegram access control, SSRF, and cloud upload retries. Rust tests cover ARM32 protocol decoding, durable drafts and queueing, erasing, Cyrillic pagination, and framebuffer validation/orientation.
 
-Перед установкой сохранена полная копия заметок и конфигурации: `.secrets/device-backup-3.20.0.92.tar.gz` (729 МБ). Список файлов — `.secrets/backup-file-list.txt`. Дополнительная копия системных настроек находится на планшете: `/home/root/remarkabl/system-before.tar.gz`.
+A pre-installation backup was saved locally as `.secrets/device-backup-3.20.0.92.tar.gz` (729 MB), with its file list in `.secrets/backup-file-list.txt`. Earlier system settings are also stored on the tablet as `/home/root/remarkabl/system-before.tar.gz`. These backups are outside Git and do not include notes created later.
 
-Если интерфейс расширений не запускается, выполните `sh scripts/restore-stock.sh`: он выключает автозапуск расширения и возвращает штатный интерфейс. Команда `/home/root/xovi/stock` на планшете возвращает интерфейс до следующего запуска расширения; одна перезагрузка может снова запустить XOVI. При восстановлении облачных настроек используйте сохранённую конфигурацию; удалять текущие заметки для этого не требуется. Сохраните резервную копию отдельно перед обновлением ПО устройства.
+Run `sh scripts/restore-stock.sh` to disable extension startup and restore the stock interface while keeping notes and cloud sync. Running `/home/root/xovi/stock` on the tablet restores the interface for the current session; rebooting alone may start XOVI again. Save a fresh backup before a firmware upgrade.
 
-Лицензии и исходники зависимостей: [THIRD_PARTY.md](THIRD_PARTY.md).
+Third-party sources and licenses: [THIRD_PARTY.md](THIRD_PARTY.md).
