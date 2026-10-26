@@ -1,0 +1,13 @@
+[Unit]
+Description=Start the compatible diary launcher with recovery to stock UI
+Wants=xochitl.service
+After=xochitl.service home.mount
+
+[Service]
+Type=oneshot
+ExecStart=/home/root/remarkabl/start-xovi-safe.sh
+RemainAfterExit=yes
+TimeoutStartSec=45
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+; Fast monochrome refresh only for the diary on the verified 3.20 firmware.
+AFFECT /appload/qml/window.qml
+    IMPORT xofm.libs.epaper 1.0 RemarkablEpaper
+    TRAVERSE FocusScope > Rectangle#mainWindowView > FBController
+        LOCATE BEFORE ALL
+        INSERT {
+            RemarkablEpaper.ScreenModeItem {
+                anchors.fill: parent
+                visible: !root.minimized && windowCanvas.active && root.appName === "Живой дневник"
+                objectName: "remarkabl-fast-ink"
+                mode: RemarkablEpaper.ScreenModeItem.Mono
+            }
+        }
+    END TRAVERSE
+END AFFECT

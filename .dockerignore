@@ -1,0 +1,11 @@
+.venv
+.secrets
+.git
+data
+dist
+tablet/target
+.pytest_cache
+.ruff_cache
+__pycache__
+.env
+.env.*

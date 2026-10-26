@@ -1,0 +1,14 @@
+[Unit]
+Description=Sync queued handwritten diary questions
+After=network.target home.mount
+
+[Service]
+EnvironmentFile=/home/root/remarkabl/device.env
+ExecStart=/home/root/xovi/exthome/appload/remarkabl/remarkabl-diary --sync-only
+Restart=always
+RestartSec=15
+TimeoutStopSec=5
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

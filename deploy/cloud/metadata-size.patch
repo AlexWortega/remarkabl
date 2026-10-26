@@ -1,0 +1,12 @@
+diff --git a/internal/storage/models/hashdoc.go b/internal/storage/models/hashdoc.go
+--- a/internal/storage/models/hashdoc.go
++++ b/internal/storage/models/hashdoc.go
+@@ -74,6 +74,8 @@ func (d *HashDoc) MetadataReader() (hash string, reader io.Reader, err error) {
+ 	for _, f := range d.Files {
+ 		if f.IsMetadata() {
+ 			f.Hash = hash
++			d.Size += int64(len(jsn)) - f.Size
++			f.Size = int64(len(jsn))
+ 			found = true
+ 			break
+ 		}

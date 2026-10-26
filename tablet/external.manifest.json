@@ -1,0 +1,8 @@
+{
+  "name": "Живой дневник",
+  "version": "0.1.0",
+  "application": "launch.sh",
+  "qtfb": true,
+  "aspectRatio": "original",
+  "disablesWindowedMode": true
+}

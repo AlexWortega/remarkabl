@@ -1,0 +1,14 @@
+; Native PDF and notebook reader overlay.
+AFFECT /qml/device/view/documentview/DocumentView.qml
+    TRAVERSE FocusScope
+        LOCATE AFTER ALL
+        INSERT {
+            Loader {
+                anchors.fill: parent
+                z: 10000
+                source: "file:///home/root/remarkabl/pdf-panel.qml"
+                onLoaded: item.captureTarget = parent
+            }
+        }
+    END TRAVERSE
+END AFFECT

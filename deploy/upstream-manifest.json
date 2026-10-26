@@ -1,0 +1,18 @@
+{
+  "xovi-arm32.tar.gz": {
+    "url": "https://github.com/asivery/rm-xovi-extensions/releases/download/v19-23052026/xovi-arm32.tar.gz",
+    "sha256": "9aa00537ad41e9be0c3151992bfc25106465318cf5bb4c41cf59b3ddd4866377"
+  },
+  "rmfakecloud-proxy-arm7": {
+    "url": "https://github.com/ddvk/rmfakecloud-proxy/releases/download/v0.0.11/rmfakecloud-proxy-arm7",
+    "sha256": "800c9284ce16397535519c85ccaa1d42f96a1728ea353ee2d9a852b5055c0744"
+  },
+  "installer-rm12.sh": {
+    "url": "https://github.com/ddvk/rmfakecloud-proxy/releases/download/v0.0.11/installer-rm12.sh",
+    "sha256": "aefa10e7c9924f8157bac899bb92173f916f842b6b5e830303adce2204afb227"
+  },
+  "appload-arm32.zip": {
+    "url": "https://github.com/asivery/rm-appload/releases/download/v0.3.1/appload-arm32.zip",
+    "sha256": "3bd87c1409310f1c33054c52aad47540506d447789f1c88412e138bc2b59b2b3"
+  }
+}
